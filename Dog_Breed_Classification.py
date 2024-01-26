@@ -16,32 +16,22 @@ warnings.filterwarnings('ignore')
 
 
 
-
-
-
-
-
-
-
-
-
-
 def main():
     
     # dane wejściowe
     data = pd.read_csv('C:/Users/agata/Desktop/dog-breed-identification/labels.csv')
-    print(data.head,"\n")                                                       #wyswietl kilka pierwszych linii
-    print(data.shape,"\n")                                                      #tymczasowe - liczba danych
+    print(data.head,"\n")                                                               #wyswietl kilka pierwszych linii
+    print(data.shape,"\n")                                                              #tymczasowe - liczba danych
     print("Liczba unikalnych nazw ras psów: ",data["breed"].nunique(),"\n")  
-    print("Liczba brakujących danych: \n",data.isna().sum(),"\n")               #mamy wszystkie więc można spokojnie działać
+    print("Liczba brakujących danych: \n",data.isna().sum(),"\n")                       #mamy wszystkie więc można spokojnie działać
     
-    train = "C:/Users/agata\Desktop/train"          # dane obrazy
+    train = "C:/Users/agata\Desktop/train"                  # dane obrazy
     #test="C:/Users/agata\Desktop/test"
     
     # Liczba wierszy i kolumn w siatce
     nrow = 5
     ncol = 5
-    fig,ax=plt.subplots(nrow,ncol,figsize=(10,10))                              # obiekt fig to cała figura, oraz tablica ax zawierającą podwykresy, z których każdy będzie używany do umieszczania jednego obrazu
+    fig,ax=plt.subplots(nrow,ncol,figsize=(10,10))          # obiekt fig to cała figura, oraz tablica ax zawierającą podwykresy, z których każdy będzie używany do umieszczania jednego obrazu
     
     target_size=(224, 224)
     dog_images = []                                                                     # pusta lista do przechowywania obrazów psów
@@ -52,6 +42,8 @@ def main():
         img = img.resize(target_size)                                                   # Dostosuj rozmiar obrazu do wspólnego rozmiaru
         dog_images.append(img)
         breeds.append(breed)
+        row = i // ncol                                     # Oblicza aktualny wiersz
+        col = i % ncol                                      # Oblicza aktualny kolumnę
         
     dog_images_stack = np.stack(dog_images)                                             # Przekształć listę obrazów, np.stack umożliwia łączenie sekwencji w nową oś
     breeds_stack = np.stack(breeds)
