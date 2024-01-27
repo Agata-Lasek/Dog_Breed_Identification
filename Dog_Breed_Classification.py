@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 from PIL import Image, ImageOps             #Wczytywanie obrazów bezpośrednio z plików
 import matplotlib.pyplot as plt
+import tensorflow as tf
 #import matplotlib.image as mpimg
 import os                                   # manipulacja  ścieżkam
 import random                               #do randomowych zdjec
@@ -42,6 +43,7 @@ def main():
     dog_images = []                                                   # pusta lista do przechowywania obrazów psów
     breeds = []                                                       # pusta lista do przechowywania ras psów
     
+    # zapisywanie obrazow do tabeli
     for idx, (image_id, breed) in enumerate(data[["id", "breed"]].itertuples(index=False)):       # Iteracja po pierwszych nrow*ncol wierszach z ramki danych data
         image_path = os.path.join(train, f"{image_id}.jpg")                                       # Ścieżka do obrazu
         img = Image.open(image_path)                                                              # Wczytywanie obrazu za pomocą Pillow (PIL)
@@ -75,11 +77,26 @@ def main():
     
     
     # Przygotowanie danych do treningu modelu
-    X = dog_images_stack                          # zmienna, która przechowuje obrazy
+    X = dog_images_stack                          # tablicą NumPy zawierającą zmniejszone obrazy psów
     y = encoded_breed                             # zmienna, która przechowuje przekształcone etykiety
     
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.20, random_state=30)      # oznacza, że 20% danych zostanie użyte jako zbiór testowy
-   
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.20, random_state=30, stratify=y)      # oznacza, że 20% danych zostanie użyte jako zbiór testowy w paczkach po 30 obrazow, X i y, gdzie X zawiera obrazy, a y zawiera odpowiadające zakodowane etykiety
+    y_train
+    train_datagen = ImageDataGenerator(
+        rotation_range=20,
+        width_shift_range=0.1,
+        height_shift_range=0.1,
+        rescale=1./255,
+        shear_range=0.1,
+        zoom_range=0.2,
+        horizontal_flip=True,
+        fill_mode='nearest')
+
+    train_generator = train_datagen.flow(X_train,y_train, batch_size)
+
+    test_datagen = ImageDataGenerator()
+    
+    test_generator = test_datagen.flow(X_test,y_test, batch_size)
 
     # Convolutional Neural Network
     model = Sequential()        # Inicjalizacja modelu
@@ -100,10 +117,18 @@ def main():
     
     model.add(Dense(num_breed, activation='softmax'))       # warstwa gęsta, num_breed określa liczbę neuronów w warstwie-  jest równoważne liczbie klas (120)
     
-    model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])  # Kompilacja modelu, optymalizator adam dostosowuje tempo uczenia się(najbardziej popularny), loss-funkcja straty określa, jak bardzo przewidywane wyjścia modelu różnią się od rzeczywistych etykiet
-    model.fit(X_train, y_train, batch_size, epochs=5)                                     # Trenowanie modelu dane treningowe zostaną przetworzone 5 razy przez cały model, batch_size=32 bo najbardziej popularny  
-
-
+    learning_rate = 1e-2
+    optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate)
+    model.compile(optimizer=optimizer, loss='categorical_crossentropy', metrics=['accuracy'])  # Kompilacja modelu, optymalizator, loss-funkcja straty określa, jak bardzo przewidywane wyjścia modelu różnią się od rzeczywistych etykiet
+    model.fit(train_generator,steps_per_epoch= X_train.shape[0] // batch_size, epochs=5,
+                 validation_data= test_generator,
+                 validation_steps= X_test.shape[0] // batch_size)
+    
+    model.summary()
+    
+    #y_pred = model.predict(test)                                                          #do uzyskania prognoz na podstawie danych testowych test
+    
+    
     # Load and preprocess test images
     dog_images_test = []
 
