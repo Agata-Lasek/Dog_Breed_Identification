@@ -129,6 +129,7 @@ def main():
     #y_pred = model.predict(test)                                                          #do uzyskania prognoz na podstawie danych testowych test
     
     
+    
     # Load and preprocess test images
     dog_images_test = []
 
