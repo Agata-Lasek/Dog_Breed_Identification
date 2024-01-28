@@ -97,7 +97,7 @@ def main():
     
     # Ustawienia
     num_breed = data["breed"].nunique()                
-    batch_size = 8                                  
+    batch_size = 32                                  
     encoder = LabelEncoder()                          
     encoded = encoder.fit_transform(data['breed'])    
     encoded_breed = to_categorical(encoded)        
@@ -107,11 +107,11 @@ def main():
     X = dog_images_stack                       
     y = encoded_breed                          
     
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.20, random_state=30, stratify=y)  
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.20, random_state=20, stratify=y)  
     y_train
     train_datagen = ImageDataGenerator(
         rotation_range=20,
-        width_shift_range=0.1,
+        width_shift_range=0.2,
         height_shift_range=0.1,
         rescale=1./255,
         shear_range=0.1,
@@ -128,10 +128,10 @@ def main():
 
     model = Sequential()   
     
-    model.add(Conv2D(2, kernel_size=(3, 3), activation ='relu', input_shape = (224, 224, 3)))
+    model.add(Conv2D(4, kernel_size=(3, 3), activation ='relu', input_shape = (224, 224, 3)))
     model.add(MaxPooling2D(pool_size=(2, 2)))
     
-    model.add(Conv2D(4, kernel_size=(3, 3), activation='relu'))
+    model.add(Conv2D(8, kernel_size=(3, 3), activation='relu'))
     model.add(MaxPooling2D(pool_size=(2, 2)))
     
     model.add(Conv2D(8, kernel_size=(3, 3), activation='relu'))
@@ -142,7 +142,6 @@ def main():
     
     model.add(Conv2D(32, kernel_size=(3, 3), activation='relu'))
     model.add(MaxPooling2D(pool_size=(2, 2)))
-    
     
 
     model.add(Flatten())
@@ -155,7 +154,7 @@ def main():
     learning_rate = 1e-3
     optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate)
     model.compile(optimizer=optimizer, loss='categorical_crossentropy', metrics=['accuracy']) 
-    model.fit(train_generator,steps_per_epoch= X_train.shape[0] // batch_size, epochs=45,
+    model.fit(train_generator,steps_per_epoch= X_train.shape[0] // batch_size, epochs=80,
                  validation_data= test_generator,
                  validation_steps= X_test.shape[0] // batch_size)
     
