@@ -128,7 +128,7 @@ def main():
 
     model = Sequential()   
     
-    model.add(Conv2D(4, kernel_size=(3, 3), activation ='relu', input_shape = (224, 224, 3)))
+    model.add(Conv2D(2, kernel_size=(3, 3), activation ='relu', input_shape = (224, 224, 3)))
     model.add(MaxPooling2D(pool_size=(2, 2)))
     
     model.add(Conv2D(4, kernel_size=(3, 3), activation='relu'))
@@ -143,22 +143,26 @@ def main():
     model.add(Conv2D(32, kernel_size=(3, 3), activation='relu'))
     model.add(MaxPooling2D(pool_size=(2, 2)))
     
+    
 
     model.add(Flatten())
     
-    model.add(Dense(64, activation='relu'))
-    model.add(Dropout(0.5))
+    model.add(Dense(128, activation='relu'))
+    model.add(Dropout(0.2))
     
     model.add(Dense(num_breed, activation='softmax'))    
     
     learning_rate = 1e-3
     optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate)
     model.compile(optimizer=optimizer, loss='categorical_crossentropy', metrics=['accuracy']) 
-    model.fit(train_generator,steps_per_epoch= X_train.shape[0] // batch_size, epochs=25,
+    model.fit(train_generator,steps_per_epoch= X_train.shape[0] // batch_size, epochs=45,
                  validation_data= test_generator,
                  validation_steps= X_test.shape[0] // batch_size)
     
     model.summary()
+    
+    #model.save('dog_bread_classifier.model')
+    #model = model.load_model('dog_bread_classifier.model')
 
 
     def load_and_resize_images(image_folder, target_size):
