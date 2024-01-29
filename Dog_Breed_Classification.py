@@ -97,7 +97,7 @@ def main():
     
     # Ustawienia
     num_breed = data["breed"].nunique()                
-    batch_size = 32                                  
+    batch_size = 8                                  
     encoder = LabelEncoder()                          
     encoded = encoder.fit_transform(data['breed'])    
     encoded_breed = to_categorical(encoded)        
@@ -131,7 +131,7 @@ def main():
     model.add(Conv2D(4, kernel_size=(3, 3), activation ='relu', input_shape = (224, 224, 3)))
     model.add(MaxPooling2D(pool_size=(2, 2)))
     
-    model.add(Conv2D(8, kernel_size=(3, 3), activation='relu'))
+    model.add(Conv2D(4, kernel_size=(3, 3), activation='relu'))
     model.add(MaxPooling2D(pool_size=(2, 2)))
     
     model.add(Conv2D(8, kernel_size=(3, 3), activation='relu'))
@@ -140,13 +140,13 @@ def main():
     model.add(Conv2D(16, kernel_size=(3, 3), activation='relu'))
     model.add(MaxPooling2D(pool_size=(2, 2)))
     
-    model.add(Conv2D(32, kernel_size=(3, 3), activation='relu'))
+    model.add(Conv2D(34, kernel_size=(3, 3), activation='relu'))
     model.add(MaxPooling2D(pool_size=(2, 2)))
     
 
     model.add(Flatten())
     
-    model.add(Dense(128, activation='relu'))
+    model.add(Dense(256, activation='relu'))
     model.add(Dropout(0.2))
     
     model.add(Dense(num_breed, activation='softmax'))    
@@ -154,7 +154,7 @@ def main():
     learning_rate = 1e-3
     optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate)
     model.compile(optimizer=optimizer, loss='categorical_crossentropy', metrics=['accuracy']) 
-    model.fit(train_generator,steps_per_epoch= X_train.shape[0] // batch_size, epochs=80,
+    model.fit(train_generator,steps_per_epoch= X_train.shape[0] // batch_size, epochs=150,
                  validation_data= test_generator,
                  validation_steps= X_test.shape[0] // batch_size)
     
@@ -173,7 +173,6 @@ def main():
             images.append(np.array(img) / 255.0)  # Normalize test data
         return images
 
-
     csv_file_path = "C:/Users/agata/Desktop/identyficated.csv"
 
     dog_images_test = load_and_resize_images(destination_folder, target_size)
@@ -186,18 +185,6 @@ def main():
     random_test_images = random.sample(os.listdir(destination_folder), 20)
     dog_images_test = load_and_resize_images(destination_folder, target_size)
 
-    def display_images_with_breeds(images, breeds, nrow, ncol):
-        fig, ax = plt.subplots(nrow, ncol, figsize=(10, 10))
-
-        for i in range(nrow * ncol):
-            row = i // ncol
-            col = i % ncol
-            ax[row, col].imshow(images[i])
-            ax[row, col].set_title(breeds[i])
-            ax[row, col].axis("off")
-
-        plt.tight_layout()
-        plt.show()
     
     if dog_images_test:
         dog_images_stack_test = np.stack(dog_images_test)
@@ -210,6 +197,21 @@ def main():
             df_identified.loc[df_identified["id"] == image_file, "breed"] = predicted_breed
 
         df_identified.to_csv(csv_file_path, index=False)
+        
+        
+        def display_images_with_breeds(images, breeds, nrow, ncol):
+            fig, ax = plt.subplots(nrow, ncol, figsize=(10, 10))
+
+
+            for i in range(nrow * ncol):
+                row = i // ncol
+                col = i % ncol
+                ax[row, col].imshow(dog_images_stack_test[i])
+                ax[row, col].set_title(predicted_breeds[i])
+                ax[row, col].axis("off")
+
+            plt.tight_layout()
+            plt.show()
         
     
 
