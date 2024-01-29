@@ -30,7 +30,7 @@ def main():
     
     nrow = 5
     ncol = 5
-    fig,ax=plt.subplots(nrow,ncol,figsize=(10,10))                  
+    #fig,ax=plt.subplots(nrow,ncol,figsize=(10,10))                  
     
     target_size=(224, 224)
     dog_images = []                                              
@@ -84,15 +84,19 @@ def main():
     breeds_stack = np.stack(breeds)
     
 
-    for i in range(nrow * ncol):
-            row = i // ncol                                
-            col = i % ncol                           
-            ax[row, col].imshow(dog_images_stack[i])       
-            ax[row, col].set_title(breeds_stack[i])     
-            ax[row, col].axis("off")                    
+    random_indices = random.sample(range(len(dog_images_stack)), 25)
+
+    fig, ax = plt.subplots(nrow, ncol, figsize=(10, 10))
+
+    for i, index in enumerate(random_indices):
+        row = i // ncol
+        col = i % ncol
+        ax[row, col].imshow(dog_images_stack[index])
+        ax[row, col].set_title(breeds_stack[index])
+        ax[row, col].axis("off")
 
     plt.tight_layout()
-    plt.show()                                           
+    plt.show()                                    
     
     
     # Ustawienia
